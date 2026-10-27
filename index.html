@@ -642,6 +642,11 @@ function stay(){
        <label for="f-dept">Time you need to leave<input id="f-dept" type="time" value="${esc(g.departTime)}"></label>
        <label for="f-stat">Status<select id="f-stat"><option value="confirmed" ${g.status!=="tentative"?"selected":""}>Confirmed</option><option value="tentative" ${g.status==="tentative"?"selected":""}>Tentative</option></select></label>
       </div>
+      <div class="fgrid">
+       <label for="f-rdate">Flight home · date<input id="f-rdate" type="date" value="${esc(g.retDate)}"></label>
+       <label for="f-rtime">Departs Paris at<input id="f-rtime" type="time" value="${esc(g.retTime)}"></label>
+       <label for="f-rflight">Flight number home<input id="f-rflight" placeholder="e.g. AF 22" value="${esc(g.retFlight)}"></label>
+      </div>
      </fieldset>
      <label for="f-ins" class="tick"><input id="f-ins" type="checkbox" ${g.insured?"checked":""}>I have travel medical insurance for my stay</label>
      <label for="f-forms" class="tick"><input id="f-forms" type="checkbox" ${g.formsSigned?"checked":""}>I've signed the liability waiver and conduct form</label>
@@ -664,8 +669,9 @@ function travelLine(g){
   const a=[g.airport&&g.airport!=="Not flying into Paris"?`Lands ${esc(g.airport.replace(/ \(.*/,""))}${g.parisDate?" "+fmt(g.parisDate):""}${g.parisTime?" "+esc(g.parisTime):""}${g.flight?" ("+esc(g.flight)+")":""}`:"",
     g.trainFrom||g.trainTime?`Train ${g.trainFrom?"from "+esc(g.trainFrom):""}${g.trainTime?" at "+esc(g.trainTime):""}${g.trainNo?" ("+esc(g.trainNo)+")":""}`:"",
     g.arriveTime?`Rennes ${esc(g.arriveTime)}`:""].filter(Boolean);
-  if(!a.length)return "";
-  return `<div class="extra"><span class="label">Travel</span> ${a.join(" → ")} ${g.trainBooked?`<span class="tag">Booked</span>`:(g.trainTime?`<span class="tag tent">Not booked</span>`:"")}</div>`;
+  const home=g.retDate||g.retFlight?` <span class="label">Home</span> ${g.retDate?fmt(g.retDate):""}${g.retTime?" "+esc(g.retTime):""}${g.retFlight?" ("+esc(g.retFlight)+")":""}`:"";
+  if(!a.length&&!home)return "";
+  return `<div class="extra"><span class="label">Travel</span> ${a.join(" → ")} ${g.trainBooked?`<span class="tag">Booked</span>`:(g.trainTime?`<span class="tag tent">Not booked</span>`:"")}${home}</div>`;
 }
 function guestRow(g){
   const tags=(g.host?`<span class="tag host">Host</span>`:"")+(g.status==="tentative"?`<span class="tag tent">Tentative</span>`:"");
@@ -838,7 +844,7 @@ function bind(){
     const val=id=>document.getElementById(id).value.trim();
     let id=S.me[S.r];const existing=S.guests.find(g=>g.id===id);
     if(!existing)id=`${S.r}-${val("f-name").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"guest"}-${Date.now().toString(36)}`;
-    const body=Object.assign({},existing||{retreat:S.r,host:false},{name:val("f-name"),arrive:val("f-arr"),arriveTime:val("f-arrt"),depart:val("f-dep"),departTime:val("f-dept"),travel:val("f-trav"),parisDate:val("f-pdate"),parisTime:val("f-ptime"),airport:val("f-air"),flight:val("f-flight"),trainFrom:val("f-tstation"),trainTime:val("f-ttime"),trainNo:val("f-tno"),trainBooked:document.getElementById("f-tbooked").checked,status:val("f-stat"),diet:val("f-diet"),dietChecked:true,formsSigned:document.getElementById("f-forms").checked,insured:document.getElementById("f-ins").checked,notes:val("f-notes")});
+    const body=Object.assign({},existing||{retreat:S.r,host:false},{name:val("f-name"),arrive:val("f-arr"),arriveTime:val("f-arrt"),depart:val("f-dep"),departTime:val("f-dept"),travel:val("f-trav"),parisDate:val("f-pdate"),parisTime:val("f-ptime"),airport:val("f-air"),flight:val("f-flight"),retDate:val("f-rdate"),retTime:val("f-rtime"),retFlight:val("f-rflight"),trainFrom:val("f-tstation"),trainTime:val("f-ttime"),trainNo:val("f-tno"),trainBooked:document.getElementById("f-tbooked").checked,status:val("f-stat"),diet:val("f-diet"),dietChecked:true,formsSigned:document.getElementById("f-forms").checked,insured:document.getElementById("f-ins").checked,notes:val("f-notes")});
     delete body.id;
     if(body.depart&&body.arrive&&body.depart<body.arrive){msg("savemsg","Departure is before arrival. Check the dates.");return}
     if(await write(`guests/${id}`,body,"savemsg")){S.me[S.r]=id;persist();render();toast("Your stay is saved")}};
