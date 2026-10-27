@@ -358,7 +358,8 @@ const RETREATS={
   r2:{label:"Retreat II",start:"2026-11-12",end:"2026-11-19"}
 };
 const TAB_IC={week:"evening",stay:"stays",table:"table",workshops:"painting",area:"wander",costs:"ceramics",setup:"monoforest"};
-const TABS=[["overview","Welcome"],["week","The Week"],["stay","My Stay"],["table","Food &amp; Dining"],["workshops","Activities"],["area","In the Area"],["costs","Costs"],["setup","Hosts"]];
+const SHOW_ACT=false; /* Activities hidden for now: flip to true to bring the tab back */
+const TABS=[["overview","Welcome"],["week","The Week"],["stay","My Stay"],["table","Food &amp; Dining"],["workshops","Activities"],["area","In the Area"],["costs","Costs"],["setup","Hosts"]].filter(t=>SHOW_ACT||t[0]!=="workshops");
 const S={place:null,slide:0,r:"r1",tab:"overview",me:{},guests:[],meals:{},workshops:[],expenses:[],settings:{},db:null,canEdit:false,loaded:false,editing:null};
 try{const v=JSON.parse(localStorage.getItem("th-hub")||"{}");if(v.r)S.r=v.r;if(v.tab)S.tab=v.tab;if(v.me)S.me=v.me;}catch(e){}
 const h=location.hash.replace("#","");if(RETREATS[h])S.r=h;else if(TABS.some(t=>t[0]===h))S.tab=h;
@@ -426,12 +427,12 @@ function overview(){
     [!!(me&&me.diet!==undefined&&me.dietChecked),`Log any allergies or dietary needs under <button class="linkbtn" data-go="stay">My Stay</button>, or tell Quinci or Tristan directly. Leave it blank if you have none.`],
     [!!(me&&me.insured),"Get travel medical insurance that covers you in France for your whole stay, then tick it off under My Stay."],
     [!!(me&&me.formsSigned),"Sign the liability waiver and conduct form. Treehaus will send both in the coming days; tick it off under My Stay once done."],
-    [!!(me&&S.workshops.some(w=>w.retreat===S.r&&w.lead&&me.name&&w.lead.toLowerCase().includes(first(me.name).toLowerCase()))),`Leading something? Add it under <button class="linkbtn" data-go="workshops">Activities</button>. Five minutes or ninety, both count.`]
+    ...(SHOW_ACT?[[!!(me&&S.workshops.some(w=>w.retreat===S.r&&w.lead&&me.name&&w.lead.toLowerCase().includes(first(me.name).toLowerCase()))),`Leading something? Add it under <button class="linkbtn" data-go="workshops">Activities</button>. Five minutes or ninety, both count.`]]:[])
   ];
   return `<section class="block">
    <div class="label">${when}</div>
    <h2>${me?`Welcome, ${esc(first(me.name))}.`:"Welcome to La Garde."}</h2>
-   <p class="lede">A fifteenth-century manor in the far west of France, on forty hectares of fields and forest with no neighbours and kilometres of paths. You get your own room and somewhere to work, and no obligation to make anything or show it to anyone. The one fixed thing each day is dinner: it is long, and everyone comes.</p>
+   <p class="lede">A fifteenth-century manor in the far west of France, on forty hectares of fields and forest with no neighbours and kilometres of paths. There is no obligation to make anything or show any work to anyone. The one shared moment we ask of community members is to gather around the table for dinner.</p>
    ${st.note?`<p><i>${esc(st.note)}</i></p>`:""}
    <div class="facts">
     <div><span class="label">In the house</span><b>${S.loaded?cf.length:"–"}</b><span class="muted">confirmed guests</span></div>
@@ -439,7 +440,7 @@ function overview(){
    </div>
   </section>
   <section class="block"><h2>Around the hub</h2>
-   <div class="guide">${[["week","The Week","The shape of each day"],["stay","My Stay","Dates, travel, diet, forms"],["table","Food &amp; Dining","Meals and who's cooking"],["workshops","Activities","Sessions and outings"],["area","In the Area","Places within an hour"],["costs","Costs","The pot and expenses"]].map(([t,n,d])=>`<button class="gtile" data-go="${t}">${ic(TAB_IC[t])}<b>${n}</b><span>${d}</span></button>`).join("")}</div>
+   <div class="guide">${[["week","The Week","The shape of each day"],["stay","My Stay","Dates, travel, diet, forms"],["table","Food &amp; Dining","Meals and who's cooking"],...(SHOW_ACT?[["workshops","Activities","Sessions and outings"]]:[]),["area","In the Area","Places within an hour"],["costs","Costs","The pot and expenses"]].map(([t,n,d])=>`<button class="gtile" data-go="${t}">${ic(TAB_IC[t])}<b>${n}</b><span>${d}</span></button>`).join("")}</div>
   </section>
   <section class="block"><div class="mosaic">
     <img class="m-a" src="${R_IMG.duo}" alt="Two guests laughing at the edge of a hay field" style="object-position:center 75%">
@@ -498,14 +499,14 @@ function week(){
     const label=blk.d.length>1?`Days ${blk.d[0]}–${blk.d[blk.d.length-1]}`:`Day ${blk.d[0]}`;
     const date=blk.d.length>1?`${DOW[a.getUTCDay()]} ${a.getUTCDate()} – ${DOW[b.getUTCDay()]} ${b.getUTCDate()} ${MON[b.getUTCMonth()]}`:`${DOW[a.getUTCDay()]} ${a.getUTCDate()} ${MON[a.getUTCMonth()]}`;
     const now=ds.includes(todayISO);
-    const extra=ds.flatMap(d=>wsOn(d).map(w=>`<li class="ws"><b>${esc(w.title)}</b>${blk.d.length>1?` · ${DOW[dt(d).getUTCDay()]}`:""}${w.time?` · ${esc(w.time)}`:""}${w.length?` · ${esc(w.length)}`:""}${w.status==="tbc"?` <span class="tag tent">TBC</span>`:""}</li>`)).join("");
+    const extra=!SHOW_ACT?"":ds.flatMap(d=>wsOn(d).map(w=>`<li class="ws"><b>${esc(w.title)}</b>${blk.d.length>1?` · ${DOW[dt(d).getUTCDay()]}`:""}${w.time?` · ${esc(w.time)}`:""}${w.length?` · ${esc(w.length)}`:""}${w.status==="tbc"?` <span class="tag tent">TBC</span>`:""}</li>`)).join("");
     return `<div class="day${now?" now":""}"><div class="d">${ic(blk.icon)}${label}<small>${date}${now?" · Today":""}</small></div><div><div class="label">${blk.d[0]<=2?"Rest":blk.d[0]<=5?"Root":"Reimagine"}</div><h3>${blk.title}</h3><ul class="list">${blk.items.map(i=>`<li>${i}</li>`).join("")}</ul>${extra?`<div class="label" style="margin-top:12px">Planned Activities</div><ul class="list">${extra}</ul>`:""}</div></div>`;
   }).join("");
   return `<section class="block">${bn(R_IMG.dusk,TAB_IC.week,`The Week · ${fmt(R.start)} → ${fmt(R.end)}`,"The shape of the week","Guests walking toward the manor at dusk under a crescent moon","center 70%")}
    <div class="phases">${[["","rest_c","Rest","Days 1–2","Arrive, settle in and slow down. Meet the house and each other, get your supplies, chat with the Mayor, and let the long dinners set the pace."],["","root_c","Root","Days 3–5","Days shaped by the people in the room: guest-led activities, open studios and outings that root the week in Évran, its producers and its landscape. The program closes on day 5."],["","arts","Reimagine","Days 6–8","Feast days with local partners such as the senior home and galleries, then a farewell brunch. Time to share what you made and carry it home: ideas, collaborations and what comes next."]].map(([im,i,t,d,x])=>`<div class="phase">${ic(i)}<div class="label">${d}</div><h3>${t}</h3><p>${x}</p></div>`).join("")}</div>
    <div class="dinnerband" style="background-image:url(${R_IMG.longtable})" role="img" aria-label="Guests around the long table in the manor kitchen"><p>Dinner is the one fixed thing every night.</p></div></section>
    <section class="block">${rows}</section>
-   <section class="block"><p class="muted">Dated activities show up here automatically. Add or edit them under <button class="linkbtn" data-go="workshops">Activities</button>.</p></section>`;
+   ${SHOW_ACT?`<section class="block"><p class="muted">Dated activities show up here automatically. Add or edit them under <button class="linkbtn" data-go="workshops">Activities</button>.</p></section>`:""}`;
 }
 
 /* ---------- In the Area ---------- */
@@ -553,10 +554,10 @@ function area(){
       <div><div class="label">Key features</div><ul class="list">${cur.todo.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
       <div><div class="label">Things to note</div><ul class="list">${cur.tips.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>
      </div>
-     <div class="row" style="margin-top:18px"><button class="btn" data-propose="${cur.id}">Propose a trip to ${esc(cur.name)}</button><button class="btn ghost" data-place="${cur.id}">Close</button></div>
+     <div class="row" style="margin-top:18px">${SHOW_ACT?`<button class="btn" data-propose="${cur.id}">Propose a trip to ${esc(cur.name)}</button>`:""}<button class="btn ghost" data-place="${cur.id}">Close</button></div>
     </section>`}
   return `<section class="block">${hd(TAB_IC.area,"In the Area","Things to do nearby")}
-   <p>Five places within an hour of La Garde. Swipe through, then tap a place to see what it is, its key features and things to note. Want company? Propose a trip and it goes on the Activities tab.</p>
+   <p>Five places within an hour of La Garde. Swipe through, then tap a place to see what it is, its key features and things to note.${SHOW_ACT?" Want company? Propose a trip and it goes on the Activities tab.":""}</p>
    ${carousel}${chips}</section>${detail}`;
 }
 
@@ -589,15 +590,9 @@ function pickups(){
 
 /* ---------- Rooms ---------- */
 function rooms(){
-  const gs=guestsR().filter(g=>g.room),me=meG();
-  if(!gs.length)return "";
-  const by={};gs.forEach(g=>(by[g.room]=by[g.room]||[]).push(g));
-  const num=r=>+(r.match(/\d+/)||[99])[0];
-  const keys=Object.keys(by).sort((a,b)=>num(a)-num(b));
   return `<section class="block">${hd("bedroom","Rooms","Room assignments")}
-   ${me&&me.room?`<p class="lede">You're in <b>${esc(me.room)}</b>${by[me.room].length>1?` with ${by[me.room].filter(g=>g.id!==me.id).map(g=>esc(first(g.name))).join(" and ")}`:""}.</p>`:""}
+   <p class="lede">Room assignments are provided on arrival.</p>
    <p>Every room comes with bedding, towels and a basic toiletry kit. Bring anything else you like to have, or pick it up at the nearby market, which has most things.</p>
-   <div class="rooms">${keys.map(k=>`<div class="room${me&&me.room===k?" mine":""}"><div class="label">${esc(k)}</div><ul>${by[k].map(g=>`<li>${esc(g.name)}</li>`).join("")}</ul></div>`).join("")}</div>
   </section>`;
 }
 
@@ -680,7 +675,6 @@ function guestRow(g){
    ${travelLine(g)}
    ${g.diet?`<div class="extra"><span class="label">Diet</span> ${esc(g.diet)}</div>`:""}
    ${g.notes?`<div class="extra muted">${esc(g.notes)}</div>`:""}
-   ${g.room?`<div class="extra"><span class="label">${esc(g.room)}</span></div>`:""}
    ${g.formsSigned||g.insured?`<div class="extra"><span class="label">${[g.insured&&"Insured",g.formsSigned&&"Forms signed"].filter(Boolean).join(" · ")}</span></div>`:""}</div>`;
 }
 
