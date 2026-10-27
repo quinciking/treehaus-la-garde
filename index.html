@@ -699,9 +699,10 @@ function calendar(){
 /* ---------- The Table ---------- */
 function table(){
   const ds=days(S.r),gs=guestsR(),diets=gs.filter(g=>g.diet);
-  const cooks={};Object.entries(S.meals).filter(([id,m])=>m.retreat===S.r&&!m.resident&&(m.team||[]).length).sort((a,b)=>a[0]<b[0]?-1:1).forEach(([id,m])=>{const d=m.date||id.slice(id.indexOf("-")+1,id.lastIndexOf("-")),sl=m.slot||id.slice(id.lastIndexOf("-")+1),x=dt(d);m.team.forEach(n=>(cooks[n]=cooks[n]||[]).push(`${DOW[x.getUTCDay()]} ${x.getUTCDate()} ${MON[x.getUTCMonth()]} ${sl}`))});
+  const cooks={};Object.entries(S.meals).filter(([id,m])=>m.retreat===S.r&&(m.team||[]).length).sort((a,b)=>a[0]<b[0]?-1:1).forEach(([id,m])=>{const d=m.date||id.slice(id.indexOf("-")+1,id.lastIndexOf("-")),sl=m.slot||id.slice(id.lastIndexOf("-")+1),x=dt(d);m.team.forEach(n=>(cooks[n]=cooks[n]||[]).push(`${DOW[x.getUTCDay()]} ${x.getUTCDate()} ${MON[x.getUTCMonth()]} ${sl}`))});
+  const chefs=new Set(Object.values(S.meals).filter(m=>m.retreat===S.r&&m.resident).flatMap(m=>m.team||[]));
   const board=Object.entries(cooks).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]));
-  const bal=board.length?`<ol class="board">${board.map(([n,ms])=>`<li><span><b>${esc(n)}</b><small>${ms.map(esc).join(" · ")}</small></span><span class="num">${ms.length} meal${ms.length>1?"s":""}</span></li>`).join("")}</ol>`:"";
+  const bal=board.length?`<ol class="board">${board.map(([n,ms])=>`<li><span><b>${esc(n)}</b>${chefs.has(n)?` <span class="tag">Resident chef</span>`:""}<small>${ms.map(esc).join(" · ")}</small></span><span class="num">${ms.length} meal${ms.length>1?"s":""}</span></li>`).join("")}</ol>`:"";
   const body=ds.map((d,i)=>{
     const x=dt(d);
     const slots=["breakfast","dinner"].filter(sl=>!(sl==="breakfast"&&i===0)&&!(sl==="dinner"&&i===ds.length-1)).map(sl=>{
