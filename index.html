@@ -161,10 +161,10 @@ details summary{cursor:pointer;font:600 11px/1.6 var(--caps);letter-spacing:.14e
 .plate-wide{width:100%;height:260px;object-fit:cover;display:block;margin-bottom:6px;filter:grayscale(1) contrast(1.05)}
 .cap{font-size:13px;font-style:italic;color:var(--muted);text-align:center}
 .cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px 28px}
-.cat{display:grid;gap:6px;min-width:0}
+.cat{display:grid;gap:6px;min-width:0;align-content:start}
 .cat .meta{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
-.cat .cap{font-size:13px}
-.meter{height:6px;background:var(--linen-2)}
+.cat .cap{font-size:13px;text-align:left}
+.meter{height:6px;background:#ECE7E1}
 .meter>div{height:6px;background:var(--olive)}
 .meter>div.over{background:var(--accent)}
 .day.now .d{color:var(--olive)}
@@ -310,6 +310,7 @@ ol.steps li::marker{font:600 13px var(--caps);color:var(--label)}
 .dinnerband{position:relative;margin-top:22px;min-height:clamp(200px,30vw,300px);background:var(--umber) center 55%/cover no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
 .dinnerband::before{content:"";position:absolute;inset:0;background:rgba(30,22,15,.55)}
 .board{list-style:none;margin:0;padding:0;counter-reset:b}.board li{counter-increment:b;display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line,#e6dfd2)}.board li::before{content:counter(b);font:400 18px var(--serif);color:var(--label)}.board small{display:block;color:var(--muted,#6b6257);font-size:13px;margin-top:2px}.board .num{white-space:nowrap;font-size:14px}
+.facts b.est,tr.est td{color:#9A928A}
 .dinnerband p{position:relative;margin:0;max-width:22ch;font:400 clamp(24px,4vw,36px)/1.25 var(--serif);color:#FFFFFF;text-wrap:balance}
 .gate{max-width:520px;margin:0 auto;text-align:center;display:grid;justify-items:center;gap:6px}.gate .ic{width:84px;height:84px}.gate .form{width:100%;text-align:left;margin-top:10px}
 .pos{color:var(--olive)}.neg{font-style:italic}
@@ -784,7 +785,7 @@ function costs(){
    <p style="text-align:center;max-width:68ch;margin-left:auto;margin-right:auto">Your stay is free. Everyone starts with a ${money(each)} budget in the shared pot: ${money(st.food)} for food, ${money(st.drinks)} for drinks and ${money(st.gas)} for fuel: heating diesel, gas for the cars and firewood. Treehaus covers cleaning, the car rentals and materials grants for guests who request them. ${hosts.length?`${hosts.map(g=>esc(first(g.name))).join(" and ")}${hosts.length>1?" put their":" puts their"} contributions toward what Treehaus provides, so the pot is split among the other guests. `:""}Treehaus funds cover any gaps the pot doesn't. Flights and trains are on you, and so are breakfast and lunch on the extension days (days 6–7): budget an extra $50–80 of your own for those.</p>
    <div class="facts">
     <div><span class="label">Starting budget</span><b>${money(each)}</b><span class="muted">per guest</span></div>
-    <div><span class="label">The pot</span><b>${money(pot)}</b><span class="muted">${n} guest${n===1?"":"s"}, hosts not included</span></div>
+    <div><span class="label">The pot · estimated</span><b class="est">${money(pot)}</b><span class="muted">${money(each)} × ${n} guest${n===1?"":"s"}, hosts not included</span></div>
     <div><span class="label">Spent so far</span><b>${money(spent)}</b><span class="muted">${ex.length} expense${ex.length===1?"":"s"} logged</span></div>
     <div><span class="label">Treehaus funds cover</span><b>${money(underwritten)}</b><span class="muted">${left>0.005?`${money(left)} left in pot`:"so far"}</span></div>
    </div>
@@ -793,7 +794,7 @@ function costs(){
   <section class="block"><div class="label">The pot</div><h2>Where it's going</h2><div class="cats">${catRows}</div></section>
   <section class="block"><div class="label">Starting budgets</div><h2>What each guest puts in</h2>
    <div class="scroll"><table><thead><tr><th>Guest</th>${CATS.map(([,l])=>`<th class="num">${l}</th>`).join("")}<th class="num">Starting budget</th></tr></thead><tbody>${payers.map(g=>`<tr><td>${esc(g.name)}</td>${CATS.map(([k])=>`<td class="num">${money(+st[k]||0)}</td>`).join("")}<td class="num">${money(each)}</td></tr>`).join("")}${hosts.map(g=>`<tr><td>${esc(g.name)} <span class="tag host">Host</span></td><td colspan="4" class="muted" style="text-align:right"><i>Contributes to Treehaus-provided costs</i></td></tr>`).join("")}${gs.length?"":`<tr><td colspan="5" class="muted">No confirmed guests yet.</td></tr>`}</tbody>
-   ${n?`<tfoot><tr><td>Pot</td>${CATS.map(([k])=>`<td class="num">${money((+st[k]||0)*n)}</td>`).join("")}<td class="num">${money(pot)}</td></tr></tfoot>`:""}</table></div>
+   ${n?`<tfoot><tr class="est"><td>Pot (estimated)</td>${CATS.map(([k])=>`<td class="num">${money((+st[k]||0)*n)}</td>`).join("")}<td class="num">${money(pot)}</td></tr></tfoot>`:""}</table></div>
   </section>
   <section class="block"><div class="label">Shared expenses</div><h2>Log a group spend</h2>
    <form class="form" id="exform">
