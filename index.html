@@ -272,6 +272,15 @@ a{text-decoration-color:var(--line);text-underline-offset:3px}
 .phase .ic{width:56px;height:56px;margin-bottom:4px}
 .phase h3{font-size:26px;margin:0}
 .phase p{font-size:15px;margin:0;color:var(--muted)}
+.pthumbs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:16px}
+@media (max-width:620px){.pthumbs{grid-template-columns:repeat(5,120px);overflow-x:auto;padding-bottom:4px}}
+.pthumb{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:4px;min-width:0}
+.pthumb img,.pthumb .pt-blank{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;opacity:.72;transition:opacity .2s;background:var(--umber)}
+.pthumb:hover img,.pthumb[aria-pressed="true"] img{opacity:1}
+.pthumb[aria-pressed="true"] img{outline:1px solid var(--title);outline-offset:3px}
+.pthumb b{font:600 11px/1.3 var(--caps);letter-spacing:.14em;text-transform:uppercase;color:var(--title);margin-top:4px}
+.pthumb span{font-size:13px;color:var(--muted)}
+.pthumb:focus-visible{outline:2px solid var(--olive);outline-offset:3px}
 .gate{max-width:520px;margin:0 auto;text-align:center;display:grid;justify-items:center;gap:6px}.gate .ic{width:84px;height:84px}.gate .form{width:100%;text-align:left;margin-top:10px}
 .pos{color:var(--olive)}.neg{font-style:italic}
 footer{border-top:1px solid var(--line);padding-block:24px 40px}
@@ -498,7 +507,7 @@ function area(){
     <div class="car-track" data-track tabindex="0">${PLACES.map(slide).join("")}</div>
     <button class="car-btn prev" data-car="-1" aria-label="Previous place">‹</button><button class="car-btn next" data-car="1" aria-label="Next place">›</button>
     <div class="car-dots">${PLACES.map((p,j)=>`<button data-dot="${j}" aria-label="Show ${esc(p.name)}" aria-current="${j===(S.slide||0)}"></button>`).join("")}</div></div>`;
-  const chips=`<div class="pchips">${PLACES.map(p=>`<button class="pchip" data-place="${p.id}" aria-pressed="${S.place===p.id}">${esc(p.name)} <span>${p.drive}</span></button>`).join("")}</div>`;
+  const chips=`<div class="pthumbs">${PLACES.map(p=>{const ph=(PHOTOS[p.id]||[])[0];return `<button class="pthumb" data-place="${p.id}" aria-pressed="${S.place===p.id}">${ph?`<img src="${ph.src}" alt="">`:`<span class="pt-blank"></span>`}<b>${esc(p.name)}</b><span>${p.drive}</span></button>`}).join("")}</div>`;
   let detail="";
   if(cur){const ph=PHOTOS[cur.id]||[];
     detail=`<section class="block pdetail" id="pdetail"><div class="label">${esc(cur.kind)} · about ${cur.km} km, ${cur.drive} by car</div><h2>${esc(cur.name)}</h2>
