@@ -267,6 +267,11 @@ a{text-decoration-color:var(--line);text-underline-offset:3px}
 .room ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
 .room li{font-size:17px;color:var(--title)}
 .room.mine{background:var(--surface);box-shadow:inset 0 0 0 1px var(--title)}
+.phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);margin-top:18px}
+.phase{padding:22px 20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;gap:6px;align-content:start}
+.phase .ic{width:56px;height:56px;margin-bottom:4px}
+.phase h3{font-size:26px;margin:0}
+.phase p{font-size:15px;margin:0;color:var(--muted)}
 .gate{max-width:520px;margin:0 auto;text-align:center;display:grid;justify-items:center;gap:6px}.gate .ic{width:84px;height:84px}.gate .form{width:100%;text-align:left;margin-top:10px}
 .pos{color:var(--olive)}.neg{font-style:italic}
 footer{border-top:1px solid var(--line);padding-block:24px 40px}
@@ -449,10 +454,11 @@ function week(){
     const date=blk.d.length>1?`${DOW[a.getUTCDay()]} ${a.getUTCDate()} – ${DOW[b.getUTCDay()]} ${b.getUTCDate()} ${MON[b.getUTCMonth()]}`:`${DOW[a.getUTCDay()]} ${a.getUTCDate()} ${MON[a.getUTCMonth()]}`;
     const now=ds.includes(todayISO);
     const extra=ds.flatMap(d=>wsOn(d).map(w=>`<li class="ws"><b>${esc(w.title)}</b>${blk.d.length>1?` · ${DOW[dt(d).getUTCDay()]}`:""}${w.time?` · ${esc(w.time)}`:""}${w.length?` · ${esc(w.length)}`:""}${w.status==="tbc"?` <span class="tag tent">TBC</span>`:""}</li>`)).join("");
-    return `<div class="day${now?" now":""}"><div class="d">${ic(blk.icon)}${label}<small>${date}${now?" · Today":""}</small></div><div><h3>${blk.title}</h3><ul class="list">${blk.items.map(i=>`<li>${i}</li>`).join("")}</ul>${extra?`<div class="label" style="margin-top:12px">On the board</div><ul class="list">${extra}</ul>`:""}</div></div>`;
+    return `<div class="day${now?" now":""}"><div class="d">${ic(blk.icon)}${label}<small>${date}${now?" · Today":""}</small></div><div><div class="label">${blk.d[0]<=5?"Rest":blk.d[0]<=7?"Root":"Reimagine"}</div><h3>${blk.title}</h3><ul class="list">${blk.items.map(i=>`<li>${i}</li>`).join("")}</ul>${extra?`<div class="label" style="margin-top:12px">On the board</div><ul class="list">${extra}</ul>`:""}</div></div>`;
   }).join("");
   return `<section class="block">${hd("evening",`The Week · ${fmt(R.start)} → ${fmt(R.end)}`,"The shape of the week")}
-   <p>Five days of rest with almost no agenda, then two feast days with partners in town, and a farewell brunch. Dinner is the one fixed thing every night.</p></section>
+   <div class="phases">${[["evening","Rest","Days 1–5","Arrive, settle in and slow down. Device-light days with almost no agenda and nothing to produce, just long dinners, open studios and the house to yourself."],["nature","Root","Days 6–7","Step out into Évran. Feast days with local partners: the senior home, galleries and producers, so the week takes root in the place and its people."],["writing","Reimagine","Day 8","Gather for a farewell brunch and carry what you started home: ideas, collaborations and the next thing you want to make together."]].map(([i,t,d,x])=>`<div class="phase">${ic(i)}<div class="label">${d}</div><h3>${t}</h3><p>${x}</p></div>`).join("")}</div>
+   <p class="muted" style="margin-top:14px">Dinner is the one fixed thing every night.</p></section>
    <section class="block">${rows}</section>
    <section class="block"><p class="muted">Dated workshops and outings show up here automatically. Add or edit them under <button class="linkbtn" data-go="workshops">Workshops</button>.</p></section>`;
 }
