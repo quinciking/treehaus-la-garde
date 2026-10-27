@@ -440,7 +440,7 @@ function overview(){
    </ul></div>
   </div></section>`:""}
   <section class="block"><div class="cols">
-   <div><div class="hicon">${ic("nature")}<div><div class="label">Costs</div><h3>Rest without performance</h3></div></div><ul class="list">
+   <div><div class="hicon">${ic("nature")}<div><div class="label">Costs</div><h3>What it costs</h3></div></div><ul class="list">
     <li>Your stay is free. Flights and the train to Rennes (about $20) are on you.</li>
     <li>Budget an extra $50–80 of your own for breakfast and lunch on the extension days (days 6–7). This isn't part of the pot.</li>
     <li>Everyone starts with a ${money(perGuest(st))} budget in the shared pot: ${money(st.food)} for food, ${money(st.drinks)} for drinks and ${money(st.gas)} for fuel (heating diesel, car gas and firewood).</li>
@@ -731,7 +731,7 @@ function workshops(){
   const dayBlock=(d,list,head)=>`<div class="day"><div class="d">${head}</div><div class="parts">${PARTS.map(([k,l,icon])=>{const its=list.filter(w=>partOf(w)===k);return `<div class="part"><div class="label part-l">${ic(icon)}${l}</div>${its.length?its.map(item).join(""):`<div class="muted open">Open</div>`}</div>`}).join("")}</div></div>`;
   const list=S.loaded||ws.length?ds.map((d,i)=>dayBlock(d,ws.filter(w=>w.date===d),`${dt(d).getUTCDate()} ${MON[dt(d).getUTCMonth()]}<small>${DOW[dt(d).getUTCDay()]} · Day ${i+1}</small>`)).join("")
     +(ws.some(w=>!w.date)?`<div class="day"><div class="d">Floating<small>Date to be set</small></div><div class="parts">${ws.filter(w=>!w.date).map(item).join("")}</div></div>`:""):"";
-  return `<section class="block">${bn(R_IMG.kayak,"wander","Workshops &amp; outings","Made by the people in the room","Guests kayaking on the Rance","center 55%")}
+  return `<section class="block">${bn(R_IMG.kayak,"wander","Guest-led","Workshops &amp; outings","Guests kayaking on the Rance","center 55%")}
    <p>Guest-proposed and guest-led, anywhere from five to ninety minutes. Nothing here is mandatory.</p>
    ${edit?form:`<button class="btn" data-wsnew>Add a workshop or outing</button>`}</section>
    <section class="block">${loading()}${list}</section>`;
@@ -753,7 +753,7 @@ function costs(){
   const catRows=CATS.map(([k,l])=>{const b=(+st[k]||0)*n,u=spentBy[k];return `<div class="cat"><div class="meta"><span class="label">${l}</span><span>${money(u)} <span class="muted">of ${money(b)}</span></span></div>${bar(u,b)}<div class="muted cap">${money(+st[k]||0)} per guest × ${n}${u>b+0.005?` · ${money(u-b)} over`:""}</div>${k==="gas"&&(st.fuelPlan||[]).length?`<ul class="plan">${st.fuelPlan.map(f=>`<li><span>${esc(f.what)}</span><span>${money(+f.amount||0)}</span></li>`).join("")}<li class="tot"><span>Planned</span><span>${money(st.fuelPlan.reduce((a,f)=>a+(+f.amount||0),0))}</span></li>${(()=>{const g=st.fuelPlan.reduce((a,f)=>a+(+f.amount||0),0)-b;return g>0.005?`<li><span>Gap covered by Treehaus funds</span><span>${money(g)}</span></li>`:""})()}</ul>`:""}</div>`}).join("")
     +(spentBy.other?`<div class="cat"><div class="meta"><span class="label">Other</span><span>${money(spentBy.other)}</span></div><div class="muted cap">Not in a preset; drawn from the pot</div></div>`:"")
     +`<div class="cat"><div class="meta"><span class="label">Covered by Treehaus</span></div><div class="muted cap">Cleaning, car rentals and materials grants for guests on request${INFO[S.r]&&INFO[S.r].supplies?` (up to ${money(INFO[S.r].supplies)} each)`:""}, funded in part by ${hosts.length?hosts.map(g=>esc(first(g.name))).join(" and ")+"'s contributions":"the hosts"}. Not drawn from the pot.</div></div>`;
-  return `<section class="block">${bn(R_IMG.fieldtrees,"nature","Costs","Those who can, pay. Nobody is priced out.","Hay bales in the field beyond the trees","center 60%")}
+  return `<section class="block">${bn(R_IMG.fieldtrees,"nature","The shared pot","Costs","Hay bales in the field beyond the trees","center 60%")}
    <p>Your stay is free. Everyone starts with a ${money(each)} budget in the shared pot: ${money(st.food)} for food, ${money(st.drinks)} for drinks and ${money(st.gas)} for fuel: heating diesel, gas for the cars and firewood. Treehaus covers cleaning, the car rentals and materials grants for guests who request them. ${hosts.length?`${hosts.map(g=>esc(first(g.name))).join(" and ")}${hosts.length>1?" put their":" puts their"} contributions toward what Treehaus provides, so the pot is split among the other guests. `:""}Treehaus funds cover any gaps the pot doesn't. Flights and trains are on you, and so are breakfast and lunch on the extension days (days 6–7): budget an extra $50–80 of your own for those.</p>
    <div class="facts">
     <div><span class="label">Starting budget</span><b>${money(each)}</b><span class="muted">per guest</span></div>
