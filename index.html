@@ -294,6 +294,23 @@ a{text-decoration-color:var(--line);text-underline-offset:3px}
 .fs legend{font:600 11px/1.3 var(--caps);letter-spacing:.2em;text-transform:uppercase;color:var(--label);padding:0 10px 0 0}
 ol.steps{margin:6px 0 10px;padding-left:22px;display:grid;gap:12px;max-width:70ch}
 ol.steps li::marker{font:600 13px var(--caps);color:var(--label)}
+@media (max-width:620px){
+ .switch{grid-template-columns:1fr 1fr}
+ .rbtn{padding:12px 14px;border-right:1px solid var(--line)}
+ .rbtn:last-child{border-right:0}
+ .rbtn b{font-size:15px}
+ .rbtn span{font-size:12px}
+ .car{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px}
+ .car-track{flex:0 0 100%}
+ .car-btn{position:static;width:38px;height:38px;font-size:24px;background:transparent;color:var(--fg);border-color:var(--line)}
+ .car-btn:hover{background:var(--surface)}
+ .car-btn.prev{order:1}.car-dots{order:2;margin-top:0}.car-btn.next{order:3}
+ .hero-slide img,.hero-slide .pcover{height:clamp(300px,90vw,380px)}
+ .hero-cap{padding:18px;padding-top:70px}
+ .hero-cap b{font-size:26px}
+ .hero-cap p{font-size:15px}
+ .frame{padding:18px 16px 20px}
+}
 .gate{max-width:520px;margin:0 auto;text-align:center;display:grid;justify-items:center;gap:6px}.gate .ic{width:84px;height:84px}.gate .form{width:100%;text-align:left;margin-top:10px}
 .pos{color:var(--olive)}.neg{font-style:italic}
 footer{border-top:1px solid var(--line);padding-block:24px 40px}
@@ -370,7 +387,7 @@ const INFO={
   r1:{supplies:250,supplyDrives:["2026-11-03","2026-11-06"],weather:"Brisk fall weather, highs in the mid-50s °F (about 13 °C).",
     week:[
       {d:[1],icon:"bedroom",title:"Arrive and settle in",items:["Optional group trips to the local grocery and art supply stores (first supply drive)","Get acquainted, then gather for dinner"]},
-      {d:[2],icon:"coffee",title:"Welcome from the Mayor",items:[`The Mayor of Évran comes to the house right after lunch to welcome residents and co-design the week's programming: local producer tours, and volunteering at the town's <a href="${EHPAD}" target="_blank" rel="noopener">elderly care home (EHPAD)</a>`,"Over dinner, we co-amend the conduct form together, shaped by what residents ask for"]},
+      {d:[2],icon:"coffee",title:"Chat with the Mayor",items:[`The Mayor of Évran comes to the house right after lunch for a chat: a welcome to the area and a chance to co-design the week's programming: local producer tours, and volunteering at the town's <a href="${EHPAD}" target="_blank" rel="noopener">elderly care home (EHPAD)</a>`,"Over dinner, we co-amend the conduct form together, shaped by what residents ask for"]},
       {d:[3,4,5],icon:"nature",title:"Guest-informed days",items:["Programming shaped by the people in the house; gather for dinner","Optional tours and outings programmed by Treehaus","Day 4: second art supply drive","Day 5: the program closes"]},
       {d:[6],icon:"dinner",title:"Feast and partner day",items:["A feast, plus activities co-programmed with partners: the senior living home, gallery visits","Breakfast and lunch are on your own (budget about $50–80 across days 6–7)"]},
       {d:[7],icon:"table",title:"Feast and partner day",items:["A feast, plus activities co-programmed with partners: the senior living home, gallery visits","Breakfast and lunch are on your own (budget about $50–80 across days 6–7)"]},
@@ -482,7 +499,7 @@ function week(){
     return `<div class="day${now?" now":""}"><div class="d">${ic(blk.icon)}${label}<small>${date}${now?" · Today":""}</small></div><div><div class="label">${blk.d[0]<=2?"Rest":blk.d[0]<=5?"Root":"Reimagine"}</div><h3>${blk.title}</h3><ul class="list">${blk.items.map(i=>`<li>${i}</li>`).join("")}</ul>${extra?`<div class="label" style="margin-top:12px">On the board</div><ul class="list">${extra}</ul>`:""}</div></div>`;
   }).join("");
   return `<section class="block">${bn(R_IMG.dusk,"evening",`The Week · ${fmt(R.start)} → ${fmt(R.end)}`,"The shape of the week","Guests walking toward the manor at dusk under a crescent moon","center 70%")}
-   <div class="phases">${[["","rest_c","Rest","Days 1–2","Arrive, settle in and slow down. Meet the house and each other, get your supplies, welcome the Mayor, and let the long dinners set the pace."],["","root_c","Root","Days 3–5","Days shaped by the people in the room: guest-led workshops, open studios and outings that root the week in Évran, its producers and its landscape. The program closes on day 5."],["","arts","Reimagine","Days 6–8","Feast days with local partners such as the senior home and galleries, then a farewell brunch. Time to share what you made and carry it home: ideas, collaborations and what comes next."]].map(([im,i,t,d,x])=>`<div class="phase">${ic(i)}<div class="label">${d}</div><h3>${t}</h3><p>${x}</p></div>`).join("")}</div>
+   <div class="phases">${[["","rest_c","Rest","Days 1–2","Arrive, settle in and slow down. Meet the house and each other, get your supplies, chat with the Mayor, and let the long dinners set the pace."],["","root_c","Root","Days 3–5","Days shaped by the people in the room: guest-led workshops, open studios and outings that root the week in Évran, its producers and its landscape. The program closes on day 5."],["","arts","Reimagine","Days 6–8","Feast days with local partners such as the senior home and galleries, then a farewell brunch. Time to share what you made and carry it home: ideas, collaborations and what comes next."]].map(([im,i,t,d,x])=>`<div class="phase">${ic(i)}<div class="label">${d}</div><h3>${t}</h3><p>${x}</p></div>`).join("")}</div>
    <p class="muted" style="margin-top:14px">Dinner is the one fixed thing every night.</p></section>
    <section class="block">${rows}</section>
    <section class="block"><p class="muted">Dated workshops and outings show up here automatically. Add or edit them under <button class="linkbtn" data-go="workshops">Workshops</button>.</p></section>`;
