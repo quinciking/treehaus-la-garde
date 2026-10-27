@@ -313,6 +313,7 @@ ol.steps li::marker{font:600 13px var(--caps);color:var(--label)}
 }
 .dinnerband{position:relative;margin-top:22px;min-height:clamp(200px,30vw,300px);background:var(--umber) center 55%/cover no-repeat;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
 .dinnerband::before{content:"";position:absolute;inset:0;background:rgba(30,22,15,.55)}
+.board{list-style:none;margin:0;padding:0;counter-reset:b}.board li{counter-increment:b;display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line,#e6dfd2)}.board li::before{content:counter(b);font:400 18px var(--serif);color:var(--label)}.board small{display:block;color:var(--muted,#6b6257);font-size:13px;margin-top:2px}.board .num{white-space:nowrap;font-size:14px}
 .dinnerband p{position:relative;margin:0;max-width:22ch;font:400 clamp(24px,4vw,36px)/1.25 var(--serif);color:#F2E8D3;text-wrap:balance}
 .gate{max-width:520px;margin:0 auto;text-align:center;display:grid;justify-items:center;gap:6px}.gate .ic{width:84px;height:84px}.gate .form{width:100%;text-align:left;margin-top:10px}
 .pos{color:var(--olive)}.neg{font-style:italic}
@@ -698,8 +699,9 @@ function calendar(){
 /* ---------- The Table ---------- */
 function table(){
   const ds=days(S.r),gs=guestsR(),diets=gs.filter(g=>g.diet);
-  const counts={};Object.values(S.meals).filter(m=>m.retreat===S.r).forEach(m=>(m.team||[]).forEach(n=>counts[n]=(counts[n]||0)+1));
-  const bal=Object.entries(counts).sort((a,b)=>b[1]-a[1]).map(([n,c])=>`${esc(n)} ×${c}`).join(" · ");
+  const cooks={};Object.entries(S.meals).filter(([id,m])=>m.retreat===S.r&&!m.resident&&(m.team||[]).length).sort((a,b)=>a[0]<b[0]?-1:1).forEach(([id,m])=>{const d=m.date||id.slice(id.indexOf("-")+1,id.lastIndexOf("-")),sl=m.slot||id.slice(id.lastIndexOf("-")+1),x=dt(d);m.team.forEach(n=>(cooks[n]=cooks[n]||[]).push(`${DOW[x.getUTCDay()]} ${x.getUTCDate()} ${MON[x.getUTCMonth()]} ${sl}`))});
+  const board=Object.entries(cooks).sort((a,b)=>b[1].length-a[1].length||a[0].localeCompare(b[0]));
+  const bal=board.length?`<ol class="board">${board.map(([n,ms])=>`<li><span><b>${esc(n)}</b><small>${ms.map(esc).join(" · ")}</small></span><span class="num">${ms.length} meal${ms.length>1?"s":""}</span></li>`).join("")}</ol>`:"";
   const body=ds.map((d,i)=>{
     const x=dt(d);
     const slots=["breakfast","dinner"].filter(sl=>!(sl==="breakfast"&&i===0)&&!(sl==="dinner"&&i===ds.length-1)).map(sl=>{
@@ -727,7 +729,7 @@ function table(){
    <p>Dinner is the one fixed thing each day. Lunch isn't a programmed meal: help yourself to bites from the kitchen whenever you like. When a resident chef isn't cooking, guests self-nominate in pairs: tap <b>Cook this one</b> on an open meal, and a second guest taps <b>Pair up</b> to join you. Whoever's cooking adds the menu and shopping list.</p>
    <div class="cols" style="margin-top:14px">
     <div><h3>Allergies and dietary needs</h3>${diets.length?`<ul class="list">${diets.map(g=>`<li><b>${esc(g.name)}</b>: ${esc(g.diet)}</li>`).join("")}</ul>`:`<p class="muted">None logged yet. Add yours under My Stay.</p>`}</div>
-    <div><h3>Cooking balance</h3><p class="muted">${bal||"No one assigned yet."}</p></div>
+    <div><h3>Cooking leaderboard</h3>${bal||`<p class="muted">No meals claimed yet. Sign up for one below.</p>`}</div>
    </div></section>
   <section class="block">${loading()}${body}</section>`;
 }
