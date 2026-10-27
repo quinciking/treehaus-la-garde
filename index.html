@@ -246,6 +246,7 @@ a{text-decoration-color:var(--line);text-underline-offset:3px}
 .hicon{display:flex;align-items:center;gap:12px;margin-bottom:10px}
 .hicon .ic{width:46px;height:46px}
 .hicon h3{margin:0}
+.hicon{align-items:center}
 .slot .meta .label{display:inline-flex;align-items:center;gap:8px}
 .slot .meta .ic{width:30px;height:30px}
 .day .d .ic{width:52px;height:52px;margin-bottom:8px}
@@ -417,7 +418,7 @@ function overview(){
     <div><span class="label">Nights</span><b>${days(S.r).length-1}</b><span class="muted">${fmt(R.start)} → ${fmt(R.end)}</span></div>
    </div>
   </section>
-  <section class="block"><div class="label">Find your way</div><h2>Around the hub</h2>
+  <section class="block"><h2>Around the hub</h2>
    <div class="guide">${[["week","evening","The Week","The shape of each day"],["stay","stays","My Stay","Dates, travel, diet, forms"],["table","table","Food &amp; Dining","Meals and who's cooking"],["workshops","painting","Workshops","Sessions and outings"],["area","wander","In the Area","Places within an hour"],["costs","coffee","Costs","The pot and expenses"]].map(([t,i,n,d])=>`<button class="gtile" data-go="${t}">${ic(i)}<b>${n}</b><span>${d}</span></button>`).join("")}</div>
   </section>
   <section class="block"><div class="mosaic">
@@ -425,22 +426,22 @@ function overview(){
     <img class="m-b" src="${R_IMG.hedge}" alt="A hedge archway opening onto a sunlit path into the woods">
     <img class="m-c" src="${R_IMG.manor}" alt="Two guests crossing the lawn toward the half-timbered wing of the manor">
   </div></section>
-  <section class="block">${hd("writing","Before you arrive","What to do now")}
+  <section class="block"><header class="sh">${ic("writing")}<div><h2>What to do now</h2></div></header>
    <ul class="check">${steps.map(([d,t])=>`<li class="${d?"done":""}"><span class="box" aria-hidden="true">${d?"✓":""}</span><span class="t">${t}</span></li>`).join("")}</ul>
   </section>
   ${info.supplies?`<section class="block"><div class="cols">
-   <div><div class="hicon">${ic("painting")}<div><div class="label">Art supplies</div><h3>Materials grants on request</h3></div></div><ul class="list">
+   <div><div class="hicon">${ic("painting")}<div><h3>Materials grants on request</h3></div></div><ul class="list">
     <li>Treehaus gives materials grants of up to ${money(info.supplies)} per guest on request. Ask Quinci or Tristan if you'd like one. Grants don't come out of the shared pot, and may be issued as Visa gift cards.</li>
     <li>Supply drives go out on ${info.supplyDrives.map((d,i)=>`${fmt(d)} (day ${days(S.r).indexOf(d)+1})`).join(" and ")}.</li>
    </ul></div>
-   <div><div class="hicon">${ic("writing")}<div><div class="label">Paperwork</div><h3>Before you arrive</h3></div></div><ul class="list">
+   <div><div class="hicon">${ic("writing")}<div><h3>Before you arrive</h3></div></div><ul class="list">
     <li>Everyone needs travel medical insurance that covers them in France for the whole stay.</li>
     <li>Everyone signs a liability waiver and a conduct form. Treehaus will send both in the coming days.</li>
     <li>The conduct form isn't final: on day 2 we co-amend it over dinner, based on what residents ask for.</li>
    </ul></div>
   </div></section>`:""}
   <section class="block"><div class="cols">
-   <div><div class="hicon">${ic("nature")}<div><div class="label">Costs</div><h3>What it costs</h3></div></div><ul class="list">
+   <div><div class="hicon">${ic("nature")}<div><h3>What it costs</h3></div></div><ul class="list">
     <li>Your stay is free. Flights and the train to Rennes (about $20) are on you.</li>
     <li>Budget an extra $50–80 of your own for breakfast and lunch on the extension days (days 6–7). This isn't part of the pot.</li>
     <li>Everyone starts with a ${money(perGuest(st))} budget in the shared pot: ${money(st.food)} for food, ${money(st.drinks)} for drinks and ${money(st.gas)} for fuel (heating diesel, car gas and firewood).</li>
@@ -449,13 +450,13 @@ function overview(){
    </ul></div>
   </div></section>
   <section class="block"><div class="cols">
-   <div><div class="hicon">${ic("evening")}<div><div class="label">House rhythm</div><h3>How the days run</h3></div></div><ul class="list">
+   <div><div class="hicon">${ic("evening")}<div><h3>How the days run</h3></div></div><ul class="list">
     <li>Device-light where you can, so your attention and social battery recover.</li>
     <li>Clean up after yourself: dishes, common areas, bathrooms.</li>
     <li>There will be several spaces around the house for guests to work in.</li>
     <li>Give as much as you take. Nobody moderates; the group keeps itself generous.</li>
    </ul></div>
-   <div><div class="hicon">${ic("bedroom")}<div><div class="label">Brittany in November</div><h3>What to pack</h3></div></div>${info.weather?`<p class="muted">${info.weather}</p>`:""}<ul class="list">
+   <div><div class="hicon">${ic("bedroom")}<div><h3>What to pack</h3></div></div>${info.weather?`<p class="muted">${info.weather}</p>`:""}<ul class="list">
     <li>Warm layers and a jumper for cold evenings</li>
     <li>Closed house slippers: the floors are old stone and tile. Every room is heated, but the stone staircase stays cold.</li>
     <li>A rain jacket and shoes you don't mind getting muddy</li>
