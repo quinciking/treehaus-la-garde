@@ -289,6 +289,10 @@ a{text-decoration-color:var(--line);text-underline-offset:3px}
 @media (max-width:620px){.mosaic{grid-template-columns:1fr 1fr;grid-template-rows:240px 260px}.mosaic .m-a{grid-row:1;grid-column:1/3}.mosaic .m-b{grid-row:2;grid-column:1}.mosaic .m-c{grid-row:2;grid-column:2}}
 .phase .ph-img{width:calc(100% + 40px);margin:-22px -20px 10px;aspect-ratio:3/2;object-fit:cover;display:block;max-width:none}
 .phase{overflow:hidden}
+.fs{border:0;border-top:1px solid var(--line);padding:14px 0 0;margin:4px 0 0;display:grid;gap:12px}
+.fs legend{font:600 11px/1.3 var(--caps);letter-spacing:.2em;text-transform:uppercase;color:var(--label);padding:0 10px 0 0}
+ol.steps{margin:6px 0 10px;padding-left:22px;display:grid;gap:12px;max-width:70ch}
+ol.steps li::marker{font:600 13px var(--caps);color:var(--label)}
 .gate{max-width:520px;margin:0 auto;text-align:center;display:grid;justify-items:center;gap:6px}.gate .ic{width:84px;height:84px}.gate .form{width:100%;text-align:left;margin-top:10px}
 .pos{color:var(--olive)}.neg{font-style:italic}
 footer{border-top:1px solid var(--line);padding-block:24px 40px}
@@ -357,6 +361,9 @@ const perGuest=st=>(+st.food||0)+(+st.drinks||0)+(+st.gas||0);
 const present=(date,slot)=>confirmed().filter(g=>slot==="dinner"?arrOf(g)<=date&&date<depOf(g):arrOf(g)<date&&date<=depOf(g));
 const meG=()=>S.guests.find(g=>g.id===S.me[S.r]);
 const first=n=>String(n).split(" ")[0];
+const AIRPORTS=["","Charles de Gaulle (CDG)","Orly (ORY)","Beauvais (BVA)","Not flying into Paris"];
+const STATIONS=["","Aéroport CDG 2 TGV","Paris Montparnasse","Massy TGV","Other"];
+const PICKUP=["","Pick me up at Rennes station","I'll take the bus from Rennes","Driving myself","Other"];
 const EHPAD="https://www.evran.bzh/mon-quotidien/social/etablissement-dhebergement-pour-personnes-agees-dependantes-ehpad/";
 const INFO={
   r1:{supplies:250,supplyDrives:["2026-11-03","2026-11-06"],weather:"Brisk fall weather, highs in the mid-50s °F (about 13 °C).",
@@ -394,7 +401,7 @@ function overview(){
   const ws=S.workshops.filter(w=>w.retreat===S.r).length;
   const steps=[
     [!!me,`Pick your name under <button class="linkbtn" data-go="stay">My Stay</button>.`],
-    [!!(me&&me.arriveTime&&me.travel),"Add your arrival time and how you're getting from Rennes."],
+    [!!(me&&me.parisTime&&me.trainBooked&&me.arriveTime),`Add your landing in Paris, your booked train to Rennes and its arrival time under <button class="linkbtn" data-go="stay">My Stay</button>.`],
     [!!(me&&me.diet!==undefined&&me.dietChecked),`Log any allergies or dietary needs under <button class="linkbtn" data-go="stay">My Stay</button>, or tell Quinci or Tristan directly. Leave it blank if you have none.`],
     [!!(me&&me.insured),"Get travel medical insurance that covers you in France for your whole stay, then tick it off under My Stay."],
     [!!(me&&me.formsSigned),"Sign the liability waiver and conduct form. Treehaus will send both in the coming days; tick it off under My Stay once done."],
@@ -534,6 +541,33 @@ function area(){
    ${carousel}${chips}</section>${detail}`;
 }
 
+/* ---------- Getting here ---------- */
+function gettingHere(){
+  return `<section class="block">${hd("train","Getting here","Paris → Rennes → La Garde")}
+   <p>We coordinate the last leg for everyone, with rental cars and buses from Rennes. To plan pickups we need three things from you: when and where you land in Paris, your booked train to Rennes, and when that train arrives. Add them to your details below once you've booked.</p>
+   <ol class="steps">
+    <li><b>Fly into Paris.</b> Charles de Gaulle (CDG) is easiest: it has its own TGV station. Leave at least 2–3 hours between landing and your train for immigration, bags and getting to the platform.</li>
+    <li><b>Book a train to Rennes</b> on <a href="https://www.sncf-connect.com/en-en/" target="_blank" rel="noopener">SNCF Connect</a> (the official SNCF site and app) or <a href="https://www.thetrainline.com/" target="_blank" rel="noopener">Trainline</a>. Search for your arrival station to <b>Rennes</b>.
+     <ul class="list" style="margin-top:8px">
+      <li><b>From CDG:</b> TGV INOUI trains leave from the airport station, <i>Aéroport Charles de Gaulle 2 TGV</i>, a few times a day. The trip takes about 2½–4 hours depending on the train.</li>
+      <li><b>From Paris Montparnasse:</b> frequent TGV and OUIGO trains, about 1½ hours. Allow an hour or more to get from either airport into the city.</li>
+      <li><b>From Orly:</b> there's no TGV at the airport. Head to Paris Montparnasse or Massy TGV, which also has trains to Rennes.</li>
+     </ul></li>
+    <li><b>Book early.</b> Fares rise closer to the date, and seats on the airport trains sell out. Keep your confirmation email.</li>
+    <li><b>Tell us your Rennes arrival time</b> below. We'll match you to a car or bus and send pickup details before you travel.</li>
+   </ol>
+   <p class="muted" style="font-size:14px">Check times on SNCF Connect when you book; schedules change by season.</p>
+  </section>`;
+}
+function pickups(){
+  const gs=confirmed().filter(g=>!g.host&&(g.arriveTime||g.parisTime||g.trainTime)).sort((a,b)=>(arrOf(a)+(a.arriveTime||"99")).localeCompare(arrOf(b)+(b.arriveTime||"99")));
+  const missing=confirmed().filter(g=>!g.host&&!g.arriveTime).map(g=>esc(first(g.name)));
+  return `<section class="block">${hd("car","Pickups","Arrivals in Rennes")}
+   ${gs.length?`<div class="scroll"><table><thead><tr><th>Guest</th><th>Lands in Paris</th><th>Train to Rennes</th><th>Arrives Rennes</th><th>From Rennes</th></tr></thead><tbody>${gs.map(g=>`<tr><td>${esc(g.name)}</td><td>${g.airport&&g.airport!=="Not flying into Paris"?esc(g.airport.replace(/ \(.*/,"")):"—"}${g.parisTime?" · "+esc(g.parisTime):""}${g.parisDate?" · "+fmt(g.parisDate):""}</td><td>${g.trainFrom?esc(g.trainFrom):"—"}${g.trainTime?" · "+esc(g.trainTime):""} ${g.trainBooked?`<span class="tag">Booked</span>`:`<span class="tag tent">Not booked</span>`}</td><td><b>${fmt(arrOf(g))}${g.arriveTime?" · "+esc(g.arriveTime):""}</b></td><td>${esc(g.travel)||"—"}</td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">${ic("nature")}<span>No travel details yet. They'll appear here as guests add them.</span></div>`}
+   ${missing.length?`<p class="muted" style="margin-top:12px">Still waiting on travel details from ${missing.join(", ")}.</p>`:""}
+  </section>`;
+}
+
 /* ---------- Rooms ---------- */
 function rooms(){
   const gs=guestsR().filter(g=>g.room),me=meG();
@@ -560,20 +594,40 @@ function stay(){
      <div class="fgrid">
       <label for="f-name">Name<input id="f-name" required value="${esc(g.name)}"></label>
      </div>
-     <div class="fgrid">
-      <label for="f-arr">Arrival<input id="f-arr" type="date" min="${R.start}" max="${R.end}" value="${esc(arrOf(Object.assign({retreat:S.r},g)))}"></label>
-      <label for="f-arrt">Arrival time<input id="f-arrt" type="time" value="${esc(g.arriveTime)}"></label>
-      <label for="f-dep">Departure<input id="f-dep" type="date" min="${R.start}" max="${R.end}" value="${esc(depOf(Object.assign({retreat:S.r},g)))}"></label>
-      <label for="f-dept">Departure time<input id="f-dept" type="time" value="${esc(g.departTime)}"></label>
-     </div>
-     <div class="fgrid">
-      <label for="f-trav">Getting there<select id="f-trav">${["","Train to Rennes, need pickup","Flying into Rennes, need pickup","Bus to Évran","Driving myself","Other"].map(o=>`<option ${o===(g.travel||"")?"selected":""} value="${esc(o)}">${o||"Choose one"}</option>`).join("")}</select></label>
-      <label for="f-stat">Status<select id="f-stat"><option value="confirmed" ${g.status!=="tentative"?"selected":""}>Confirmed</option><option value="tentative" ${g.status==="tentative"?"selected":""}>Tentative</option></select></label>
-     </div>
+     <fieldset class="fs"><legend>${ic("by-plane")||""}1 · Landing in Paris</legend>
+      <div class="fgrid">
+       <label for="f-pdate">Date<input id="f-pdate" type="date" value="${esc(g.parisDate)}"></label>
+       <label for="f-ptime">Landing time<input id="f-ptime" type="time" value="${esc(g.parisTime)}"></label>
+       <label for="f-air">Airport<select id="f-air">${AIRPORTS.map(o=>`<option ${o===(g.airport||"")?"selected":""} value="${esc(o)}">${o||"Choose one"}</option>`).join("")}</select></label>
+       <label for="f-flight">Flight number<input id="f-flight" placeholder="e.g. AF 23" value="${esc(g.flight)}"></label>
+      </div>
+     </fieldset>
+     <fieldset class="fs"><legend>2 · Train from Paris to Rennes</legend>
+      <div class="fgrid">
+       <label for="f-tstation">Leaving from<select id="f-tstation">${STATIONS.map(o=>`<option ${o===(g.trainFrom||"")?"selected":""} value="${esc(o)}">${o||"Choose one"}</option>`).join("")}</select></label>
+       <label for="f-ttime">Train departs<input id="f-ttime" type="time" value="${esc(g.trainTime)}"></label>
+       <label for="f-tno">Train number<input id="f-tno" placeholder="e.g. TGV 8615" value="${esc(g.trainNo)}"></label>
+      </div>
+      <label for="f-tbooked" class="tick"><input id="f-tbooked" type="checkbox" ${g.trainBooked?"checked":""}>My train ticket is booked and confirmed</label>
+     </fieldset>
+     <fieldset class="fs"><legend>3 · Arriving in Rennes</legend>
+      <div class="fgrid">
+       <label for="f-arr">Date<input id="f-arr" type="date" min="${R.start}" max="${R.end}" value="${esc(arrOf(Object.assign({retreat:S.r},g)))}"></label>
+       <label for="f-arrt">Train arrives in Rennes<input id="f-arrt" type="time" value="${esc(g.arriveTime)}"></label>
+       <label for="f-trav">From Rennes<select id="f-trav">${PICKUP.map(o=>`<option ${o===(g.travel||"")?"selected":""} value="${esc(o)}">${o||"Choose one"}</option>`).join("")}</select></label>
+      </div>
+     </fieldset>
+     <fieldset class="fs"><legend>4 · Leaving La Garde</legend>
+      <div class="fgrid">
+       <label for="f-dep">Date<input id="f-dep" type="date" min="${R.start}" max="${R.end}" value="${esc(depOf(Object.assign({retreat:S.r},g)))}"></label>
+       <label for="f-dept">Time you need to leave<input id="f-dept" type="time" value="${esc(g.departTime)}"></label>
+       <label for="f-stat">Status<select id="f-stat"><option value="confirmed" ${g.status!=="tentative"?"selected":""}>Confirmed</option><option value="tentative" ${g.status==="tentative"?"selected":""}>Tentative</option></select></label>
+      </div>
+     </fieldset>
      <label for="f-ins" class="tick"><input id="f-ins" type="checkbox" ${g.insured?"checked":""}>I have travel medical insurance for my stay</label>
      <label for="f-forms" class="tick"><input id="f-forms" type="checkbox" ${g.formsSigned?"checked":""}>I've signed the liability waiver and conduct form</label>
      <label for="f-diet">Allergies and dietary needs<input id="f-diet" value="${esc(g.diet)}" placeholder="Leave blank if none"></label>
-     <label for="f-notes">Notes for the hosts<textarea id="f-notes" placeholder="Train numbers, who you're travelling with, anything we should know">${esc(g.notes)}</textarea></label>
+     <label for="f-notes">Notes for the hosts<textarea id="f-notes" placeholder="Who you're travelling with, luggage, anything we should know">${esc(g.notes)}</textarea></label>
      <div class="row"><button class="btn" type="submit">Save my stay</button><span class="muted" id="savemsg" style="font-size:14px"></span></div>
     </form></section>`;
   }
@@ -581,14 +635,24 @@ function stay(){
   <section class="block">${hd("stays","My Stay","Who are you?")}
    <p class="muted">Tap your name. This browser remembers it; on another device, tap it again.</p>
    ${loading()}${S.loaded?picker:""}</section>
+   ${gettingHere()}
    ${form}
+   ${pickups()}
    ${rooms()}
    <section class="block">${hd("coffee","The house","Who's here when")}${loading()}${gs.length?gs.map(guestRow).join(""):S.loaded?`<div class="empty">${ic("nature")}<span>No guests on ${RETREATS[S.r].label} yet.</span></div>`:""}</section>`;
+}
+function travelLine(g){
+  const a=[g.airport&&g.airport!=="Not flying into Paris"?`Lands ${esc(g.airport.replace(/ \(.*/,""))}${g.parisDate?" "+fmt(g.parisDate):""}${g.parisTime?" "+esc(g.parisTime):""}${g.flight?" ("+esc(g.flight)+")":""}`:"",
+    g.trainFrom||g.trainTime?`Train ${g.trainFrom?"from "+esc(g.trainFrom):""}${g.trainTime?" at "+esc(g.trainTime):""}${g.trainNo?" ("+esc(g.trainNo)+")":""}`:"",
+    g.arriveTime?`Rennes ${esc(g.arriveTime)}`:""].filter(Boolean);
+  if(!a.length)return "";
+  return `<div class="extra"><span class="label">Travel</span> ${a.join(" → ")} ${g.trainBooked?`<span class="tag">Booked</span>`:(g.trainTime?`<span class="tag tent">Not booked</span>`:"")}</div>`;
 }
 function guestRow(g){
   const tags=(g.host?`<span class="tag host">Host</span>`:"")+(g.status==="tentative"?`<span class="tag tent">Tentative</span>`:"");
   return `<div class="guest"><div><span class="name">${esc(g.name)}</span>${tags}</div><div></div>
    <div class="when">${fmt(arrOf(g))}${g.arriveTime?", "+esc(g.arriveTime):""} → ${fmt(depOf(g))}${g.departTime?", "+esc(g.departTime):""} · ${nightsOf(g)} nights${g.travel?" · "+esc(g.travel):""}</div>
+   ${travelLine(g)}
    ${g.diet?`<div class="extra"><span class="label">Diet</span> ${esc(g.diet)}</div>`:""}
    ${g.notes?`<div class="extra muted">${esc(g.notes)}</div>`:""}
    ${g.room?`<div class="extra"><span class="label">${esc(g.room)}</span></div>`:""}
@@ -755,7 +819,7 @@ function bind(){
     const val=id=>document.getElementById(id).value.trim();
     let id=S.me[S.r];const existing=S.guests.find(g=>g.id===id);
     if(!existing)id=`${S.r}-${val("f-name").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"guest"}-${Date.now().toString(36)}`;
-    const body=Object.assign({},existing||{retreat:S.r,host:false},{name:val("f-name"),arrive:val("f-arr"),arriveTime:val("f-arrt"),depart:val("f-dep"),departTime:val("f-dept"),travel:val("f-trav"),status:val("f-stat"),diet:val("f-diet"),dietChecked:true,formsSigned:document.getElementById("f-forms").checked,insured:document.getElementById("f-ins").checked,notes:val("f-notes")});
+    const body=Object.assign({},existing||{retreat:S.r,host:false},{name:val("f-name"),arrive:val("f-arr"),arriveTime:val("f-arrt"),depart:val("f-dep"),departTime:val("f-dept"),travel:val("f-trav"),parisDate:val("f-pdate"),parisTime:val("f-ptime"),airport:val("f-air"),flight:val("f-flight"),trainFrom:val("f-tstation"),trainTime:val("f-ttime"),trainNo:val("f-tno"),trainBooked:document.getElementById("f-tbooked").checked,status:val("f-stat"),diet:val("f-diet"),dietChecked:true,formsSigned:document.getElementById("f-forms").checked,insured:document.getElementById("f-ins").checked,notes:val("f-notes")});
     delete body.id;
     if(body.depart&&body.arrive&&body.depart<body.arrive){msg("savemsg","Departure is before arrival. Check the dates.");return}
     if(await write(`guests/${id}`,body,"savemsg")){S.me[S.r]=id;persist();render();toast("Your stay is saved")}};
