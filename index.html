@@ -398,8 +398,8 @@ function overview(){
    <ul class="check">${steps.map(([d,t])=>`<li class="${d?"done":""}"><span class="box" aria-hidden="true">${d?"✓":""}</span><span class="t">${t}</span></li>`).join("")}</ul>
   </section>
   ${info.supplies?`<section class="block"><div class="cols">
-   <div><div class="hicon">${ic("painting")}<div><div class="label">Art supplies</div><h3>A ${money(info.supplies)} materials grant</h3></div></div><ul class="list">
-    <li>Everyone picks their own supplies, with a ${money(info.supplies)} materials grant from Treehaus. It doesn't come out of the shared pot. We may issue it as Visa gift cards; details to come.</li>
+   <div><div class="hicon">${ic("painting")}<div><div class="label">Art supplies</div><h3>Materials grants on request</h3></div></div><ul class="list">
+    <li>Treehaus gives materials grants of up to ${money(info.supplies)} per guest on request. Ask Quinci or Tristan if you'd like one. Grants don't come out of the shared pot, and may be issued as Visa gift cards.</li>
     <li>Supply drives go out on ${info.supplyDrives.map((d,i)=>`${fmt(d)} (day ${days(S.r).indexOf(d)+1})`).join(" and ")}.</li>
    </ul></div>
    <div><div class="hicon">${ic("writing")}<div><div class="label">Paperwork</div><h3>Before you arrive</h3></div></div><ul class="list">
@@ -413,7 +413,7 @@ function overview(){
     <li>Your stay is free. Flights and the train to Rennes (about $20) are on you.</li>
     <li>Budget an extra $50–80 of your own for breakfast and lunch on the extension days (days 6–7). This isn't part of the pot.</li>
     <li>Everyone starts with a ${money(perGuest(st))} budget in the shared pot: ${money(st.food)} for food, ${money(st.drinks)} for drinks and ${money(st.gas)} for fuel (heating diesel, car gas and firewood).</li>
-    <li>Treehaus covers cleaning, the car rentals and materials grants for guests.</li>
+    <li>Treehaus covers cleaning, the car rentals and materials grants for guests who request them.</li>
     <li>Treehaus funds cover any gaps the pot doesn't.</li>
    </ul></div>
   </div></section>
@@ -664,9 +664,9 @@ function costs(){
   const bar=(used,budget)=>{const pct=budget?Math.min(100,used/budget*100):(used?100:0);return `<div class="meter"><div style="width:${pct}%" class="${used>budget+0.005?"over":""}"></div></div>`};
   const catRows=CATS.map(([k,l])=>{const b=(+st[k]||0)*n,u=spentBy[k];return `<div class="cat"><div class="meta"><span class="label">${l}</span><span>${money(u)} <span class="muted">of ${money(b)}</span></span></div>${bar(u,b)}<div class="muted cap">${money(+st[k]||0)} per guest × ${n}${u>b+0.005?` · ${money(u-b)} over`:""}</div>${k==="gas"&&(st.fuelPlan||[]).length?`<ul class="plan">${st.fuelPlan.map(f=>`<li><span>${esc(f.what)}</span><span>${money(+f.amount||0)}</span></li>`).join("")}<li class="tot"><span>Planned</span><span>${money(st.fuelPlan.reduce((a,f)=>a+(+f.amount||0),0))}</span></li>${(()=>{const g=st.fuelPlan.reduce((a,f)=>a+(+f.amount||0),0)-b;return g>0.005?`<li><span>Gap covered by Treehaus funds</span><span>${money(g)}</span></li>`:""})()}</ul>`:""}</div>`}).join("")
     +(spentBy.other?`<div class="cat"><div class="meta"><span class="label">Other</span><span>${money(spentBy.other)}</span></div><div class="muted cap">Not in a preset; drawn from the pot</div></div>`:"")
-    +`<div class="cat"><div class="meta"><span class="label">Covered by Treehaus</span></div><div class="muted cap">Cleaning, car rentals and materials scholarships for guests${INFO[S.r]&&INFO[S.r].supplies?` (${money(INFO[S.r].supplies)} each for art supplies)`:""}, funded in part by ${hosts.length?hosts.map(g=>esc(first(g.name))).join(" and ")+"'s contributions":"the hosts"}. Not drawn from the pot.</div></div>`;
+    +`<div class="cat"><div class="meta"><span class="label">Covered by Treehaus</span></div><div class="muted cap">Cleaning, car rentals and materials grants for guests on request${INFO[S.r]&&INFO[S.r].supplies?` (up to ${money(INFO[S.r].supplies)} each)`:""}, funded in part by ${hosts.length?hosts.map(g=>esc(first(g.name))).join(" and ")+"'s contributions":"the hosts"}. Not drawn from the pot.</div></div>`;
   return `<section class="block">${hd("nature","Costs","Those who can, pay. Nobody is priced out.")}
-   <p>Your stay is free. Everyone starts with a ${money(each)} budget in the shared pot: ${money(st.food)} for food, ${money(st.drinks)} for drinks and ${money(st.gas)} for fuel: heating diesel, gas for the cars and firewood. Treehaus covers cleaning, the car rentals and materials grants for guests. ${hosts.length?`${hosts.map(g=>esc(first(g.name))).join(" and ")}${hosts.length>1?" put their":" puts their"} contributions toward what Treehaus provides, so the pot is split among the other guests. `:""}Treehaus funds cover any gaps the pot doesn't. Flights and trains are on you, and so are breakfast and lunch on the extension days (days 6–7): budget an extra $50–80 of your own for those.</p>
+   <p>Your stay is free. Everyone starts with a ${money(each)} budget in the shared pot: ${money(st.food)} for food, ${money(st.drinks)} for drinks and ${money(st.gas)} for fuel: heating diesel, gas for the cars and firewood. Treehaus covers cleaning, the car rentals and materials grants for guests who request them. ${hosts.length?`${hosts.map(g=>esc(first(g.name))).join(" and ")}${hosts.length>1?" put their":" puts their"} contributions toward what Treehaus provides, so the pot is split among the other guests. `:""}Treehaus funds cover any gaps the pot doesn't. Flights and trains are on you, and so are breakfast and lunch on the extension days (days 6–7): budget an extra $50–80 of your own for those.</p>
    <div class="facts">
     <div><span class="label">Starting budget</span><b>${money(each)}</b><span class="muted">per guest</span></div>
     <div><span class="label">The pot</span><b>${money(pot)}</b><span class="muted">${n} guest${n===1?"":"s"}, hosts not included</span></div>
